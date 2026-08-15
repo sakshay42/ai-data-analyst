@@ -48,6 +48,7 @@ ai-data-analyst-evals = "evals.local_runner:main"
 ai-data-analyst-mcp = "src.mcp_server.server:main"
 ai-data-analyst-demo = "src.demo.portfolio_demo:main"
 ai-data-analyst-experiment-demo = "src.demo.experimentation_demo:main"
+ai-data-analyst-eval-progress = "evals.progress_tracker:main"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0.0"

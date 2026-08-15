@@ -20,6 +20,12 @@ from evals.local_runner import (
     summarize_results,
 )
 from evals.huggingface_loader import DEFAULT_HF_TEXT2SQL_DATASETS
+from evals.progress_tracker import (
+    compare_eval_results,
+    render_progress_markdown,
+    run_progress_demo,
+    summarize_progress,
+)
 from evals.scorers.sql_scorers import SQLEfficiency, SQLValidity
 from src.tools.stats_toolkit import StatsToolkit
 
@@ -34,6 +40,7 @@ def project_info() -> dict[str, Any]:
         "entrypoints": {
             "streamlit": "src/streamlit_app/app.py",
             "local_evals": "evals/local_runner.py",
+            "eval_progress": "evals/progress_tracker.py",
             "mcp_server": "src/mcp_server/server.py",
         },
         "source_packages": sorted(
@@ -202,6 +209,74 @@ def evaluate_sql_predictions_report(
     )
 
 
+def compare_sql_prediction_runs(
+    previous_predictions: list[dict[str, str]],
+    current_predictions: list[dict[str, str]],
+    dataset: str = "sql_generation",
+    pass_threshold: float = 0.90,
+    format: str = "json",
+) -> dict[str, Any] | str:
+    """Compare two SQL prediction runs and diagnose progress/regressions."""
+
+    def to_prediction_map(items: list[dict[str, str]]) -> dict[str, str]:
+        prediction_map: dict[str, str] = {}
+        for item in items:
+            question = item.get("question")
+            sql = item.get("sql", item.get("generated_sql", item.get("prediction")))
+            if not question or sql is None:
+                raise ValueError("Each prediction must include question and sql/generated_sql/prediction.")
+            prediction_map[str(question)] = str(sql)
+        return prediction_map
+
+    cases = load_dataset(dataset)
+    previous_results = evaluate_sql_dataset(
+        cases, to_prediction_map(previous_predictions), pass_threshold=pass_threshold
+    )
+    current_results = evaluate_sql_dataset(
+        cases, to_prediction_map(current_predictions), pass_threshold=pass_threshold
+    )
+    deltas = compare_eval_results(previous_results, current_results)
+    payload = {
+        "dataset": dataset,
+        "pass_threshold": pass_threshold,
+        "summary": summarize_progress(deltas),
+        "deltas": [
+            {
+                "question": delta.question,
+                "difficulty": delta.difficulty,
+                "previous_score": delta.previous_score,
+                "current_score": delta.current_score,
+                "score_delta": delta.score_delta,
+                "previous_passed": delta.previous_passed,
+                "current_passed": delta.current_passed,
+                "status": delta.status,
+                "previous_issue": delta.previous_issue,
+                "current_issue": delta.current_issue,
+                "recommendation": delta.recommendation,
+            }
+            for delta in deltas
+        ],
+        "previous_predictions_path": "provided_via_mcp",
+        "current_predictions_path": "provided_via_mcp",
+        "chart_path": "not_generated_for_mcp_inline_comparison",
+    }
+    if format == "markdown":
+        return render_progress_markdown(payload)
+    if format != "json":
+        raise ValueError("format must be 'json' or 'markdown'.")
+    return payload
+
+
+def run_eval_progress_demo(format: str = "json") -> dict[str, Any] | str:
+    """Run the deterministic before/after eval progress demo."""
+    payload = run_progress_demo()
+    if format == "markdown":
+        return render_progress_markdown(payload)
+    if format != "json":
+        raise ValueError("format must be 'json' or 'markdown'.")
+    return payload
+
+
 def analyze_rows(rows: list[dict[str, Any]], columns: list[str] | None = None) -> dict[str, Any]:
     """Run the project's non-LLM statistical analysis over provided rows."""
     resolved_columns = columns or (list(rows[0].keys()) if rows else [])
@@ -253,6 +328,8 @@ def create_server():
     mcp.tool()(run_huggingface_sql_eval)
     mcp.tool()(evaluate_sql_predictions)
     mcp.tool()(evaluate_sql_predictions_report)
+    mcp.tool()(compare_sql_prediction_runs)
+    mcp.tool()(run_eval_progress_demo)
     mcp.tool()(analyze_rows)
 
     @mcp.resource("project://{relative_path}")

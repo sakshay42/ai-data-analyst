@@ -13,6 +13,7 @@ The repository includes a database-backed analysis pipeline, offline demos, stat
 - Analyzes A/B tests with confidence intervals, bootstrap uncertainty, effect sizes, power, MDE, multiple-testing correction, and statistical audit warnings.
 - Produces chart artifacts and markdown reports.
 - Runs offline SQL evals for validity, efficiency, similarity, and keyword coverage.
+- Compares before/after eval runs to diagnose fixed cases, regressions, and remaining weak spots.
 - Streams small Hugging Face text-to-SQL benchmark samples for external evals.
 - Exposes MCP tools for SQL scoring, evals, project metadata, and row analysis.
 
@@ -115,6 +116,25 @@ Eval metrics include:
 - prediction coverage
 - weakest-case summary
 
+Run the eval progress demo:
+
+```bash
+uvx poetry run ai-data-analyst-eval-progress
+```
+
+The progress demo compares a simulated earlier SQL prediction run against an improved run, then reports:
+
+- pass-rate and score movement
+- fixed cases and regressions
+- failure categories such as missing clauses or inefficient SQL
+- recommended next changes for the SQL generation pipeline
+
+Eval progress artifacts:
+
+- [Eval progress report](docs/EVAL_PROGRESS_DEMO.md)
+- [Eval progress chart](docs/assets/eval_progress.png)
+- [Eval progress notebook](notebooks/eval_progress_demo.ipynb)
+
 ## Statistical Experimentation
 
 The `src/stats/experimentation.py` module adds a statistics-heavy layer for controlled experiments:
@@ -144,6 +164,8 @@ Exposed tools include:
 - `list_huggingface_eval_presets`
 - `run_sql_eval`
 - `run_huggingface_sql_eval`
+- `compare_sql_prediction_runs`
+- `run_eval_progress_demo`
 - `evaluate_sql_predictions`
 - `evaluate_sql_predictions_report`
 - `analyze_rows`
@@ -161,7 +183,7 @@ uvx poetry run pytest tests/unit/ -v
 Current local verification:
 
 ```text
-98 unit tests passed
+103 unit tests passed
 ```
 
 ## Database Path

@@ -38,6 +38,8 @@ poetry run mcp dev src/mcp_server/server.py
 - `run_huggingface_sql_eval`: runs scorer baseline on a streamed Hugging Face text-to-SQL sample.
 - `evaluate_sql_predictions`: scores generated SQL predictions against a dataset.
 - `evaluate_sql_predictions_report`: returns a markdown report for generated SQL predictions.
+- `compare_sql_prediction_runs`: compares two prediction runs and diagnoses fixed cases, regressions, and remaining issues.
+- `run_eval_progress_demo`: runs the deterministic before/after eval progress demo.
 - `analyze_rows`: runs non-LLM statistical analysis over caller-provided rows.
 
 ## Hugging Face Benchmarks

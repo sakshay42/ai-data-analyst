@@ -2,21 +2,25 @@
 
 from src.mcp_server.server import (
     analyze_rows,
+    compare_sql_prediction_runs,
     evaluate_sql_predictions,
     evaluate_sql_predictions_report,
     list_huggingface_eval_presets,
     list_eval_cases,
     project_info,
     read_project_file,
+    run_eval_progress_demo,
     run_sql_eval,
     score_sql,
 )
+from evals.progress_tracker import simulated_current_predictions, simulated_previous_predictions
 
 
 def test_project_info_lists_entrypoints():
     info = project_info()
     assert info["name"] == "ai-data-analyst"
     assert info["entrypoints"]["mcp_server"] == "src/mcp_server/server.py"
+    assert info["entrypoints"]["eval_progress"] == "evals/progress_tracker.py"
     assert "sql_generation" in info["eval_datasets"]
 
 
@@ -66,6 +70,25 @@ def test_evaluate_sql_predictions_markdown_report():
         predictions=[{"question": cases[0]["question"], "sql": "SELECT name FROM customers;"}]
     )
     assert "Missing Predictions" in report
+
+
+def test_compare_sql_prediction_runs_returns_progress_summary():
+    previous = [
+        {"question": question, "sql": sql}
+        for question, sql in simulated_previous_predictions().items()
+    ]
+    current = [
+        {"question": question, "sql": sql}
+        for question, sql in simulated_current_predictions().items()
+    ]
+    payload = compare_sql_prediction_runs(previous, current)
+    assert payload["summary"]["current_avg_score"] >= payload["summary"]["previous_avg_score"]
+
+
+def test_run_eval_progress_demo_supports_markdown():
+    report = run_eval_progress_demo(format="markdown")
+    assert "# Eval Progress Demo" in report
+    assert "Fixed cases" in report
 
 
 def test_analyze_rows_returns_summary_for_numeric_data():
