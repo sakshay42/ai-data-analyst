@@ -57,3 +57,22 @@ def test_markdown_report_contains_eval_summary():
     report = render_markdown_report(payload)
     assert "# Eval Report: sql_generation" in report
     assert "Pass rate" in report
+
+
+def test_execution_scoring_expected_sql_matches_fixture():
+    payload = run_local_eval("sql_generation", execution=True)
+    assert payload["execution_enabled"] is True
+    assert payload["summary"]["execution_accuracy"] == 1.0
+    assert all(result["execution_passed"] is True for result in payload["results"])
+
+
+def test_execution_scoring_catches_valid_but_wrong_sql():
+    cases = load_dataset("sql_generation")[:1]
+    results = evaluate_sql_dataset(
+        cases,
+        predictions={cases[0].question: "SELECT email, name FROM customers;"},
+        execution=True,
+    )
+    assert results[0].validity_score == 1.0
+    assert results[0].execution_passed is False
+    assert results[0].passed is False

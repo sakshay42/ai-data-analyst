@@ -55,6 +55,12 @@ def test_run_sql_eval_supports_markdown_report():
     assert "# Eval Report: sql_generation" in report
 
 
+def test_run_sql_eval_supports_execution_scoring():
+    payload = run_sql_eval("sql_generation", execution=True)
+    assert payload["execution_enabled"] is True
+    assert payload["summary"]["execution_accuracy"] == 1.0
+
+
 def test_evaluate_sql_predictions_reports_missing_predictions():
     cases = list_eval_cases("sql_generation")
     payload = evaluate_sql_predictions(
@@ -63,6 +69,21 @@ def test_evaluate_sql_predictions_reports_missing_predictions():
     assert payload["mode"] == "mcp_predictions"
     assert payload["summary"]["prediction_coverage"] > 0
     assert payload["missing_predictions"]
+
+
+def test_evaluate_sql_predictions_can_use_execution_scoring():
+    cases = list_eval_cases("sql_generation")
+    payload = evaluate_sql_predictions(
+        predictions=[
+            {
+                "question": cases[0]["question"],
+                "sql": "SELECT email, name FROM customers;",
+            }
+        ],
+        execution=True,
+    )
+    assert payload["execution_enabled"] is True
+    assert payload["results"][0]["execution_passed"] is False
 
 
 def test_evaluate_sql_predictions_markdown_report():

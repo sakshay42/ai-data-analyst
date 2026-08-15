@@ -1,7 +1,9 @@
 # Live SQL Benchmark
 
 This report captures a live model-generated SQL run against the bundled `sql_generation`
-eval set. Unlike the expected-SQL baseline, this benchmark scored generated predictions.
+eval set. It was produced before execution scoring was added, so it should be read as
+a structural SQL-quality report. To get row-level correctness, rerun the live benchmark
+with `--execution`.
 
 ## Setup
 
@@ -21,6 +23,7 @@ eval set. Unlike the expected-SQL baseline, this benchmark scored generated pred
 | SQL validity | 1.0000 |
 | SQL efficiency | 0.9688 |
 | SQL similarity | 0.6685 |
+| Execution accuracy | Not measured in this run |
 
 ## By Difficulty
 
@@ -42,7 +45,11 @@ eval set. Unlike the expected-SQL baseline, this benchmark scored generated pred
 
 ## Interpretation
 
-The live model generated valid read-only SQL for every bundled case. The harder
-window-function, CTE, and nested aggregate tasks remain the main improvement
-frontier because their generated SQL often differs from the reference query even
-when the query is valid and passes the combined scorer threshold.
+The live model generated valid read-only SQL for every bundled case under the
+structural scorer. The harder window-function, CTE, and nested aggregate tasks
+remain the main improvement frontier because their generated SQL often differs
+from the reference query. The next local run should use:
+
+```bash
+uvx poetry run ai-data-analyst-live-sql-benchmark --source local --limit 16 --model gpt-4o-mini --execution
+```

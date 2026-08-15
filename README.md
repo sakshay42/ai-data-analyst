@@ -104,7 +104,8 @@ export OPENAI_API_KEY="..."
 uvx poetry run ai-data-analyst-live-sql-benchmark \
   --source local \
   --limit 16 \
-  --model gpt-4o-mini
+  --model gpt-4o-mini \
+  --execution
 ```
 
 Run live predictions against a small streamed BIRD sample:
@@ -117,7 +118,7 @@ uvx poetry run ai-data-analyst-live-sql-benchmark \
   --model gpt-4o-mini
 ```
 
-The live benchmark writes generated predictions, a markdown report, and a JSON payload under `output/live_sql_benchmark/`. API keys must stay local and are never committed.
+The live benchmark writes generated predictions, a markdown report, and a JSON payload under `output/live_sql_benchmark/`. API keys must stay local and are never committed. Execution scoring is available for bundled local evals; external Hugging Face samples are scored structurally unless a matching benchmark database is provided.
 
 Export a normalized benchmark sample:
 
@@ -136,6 +137,7 @@ Eval metrics include:
 - similarity to expected SQL
 - SQL clause coverage
 - prediction coverage
+- execution accuracy for bundled local evals
 - weakest-case summary
 
 Run the eval progress demo:
@@ -165,6 +167,7 @@ Live model benchmark artifacts:
 
 - [Live bundled SQL benchmark](docs/LIVE_SQL_BENCHMARK.md)
 - [Live BIRD benchmark sample](docs/LIVE_HF_BIRD_BENCHMARK.md)
+- [Execution eval baseline](docs/EXECUTION_EVAL_BASELINE.md)
 
 ## Statistical Experimentation
 
@@ -214,7 +217,7 @@ uvx poetry run pytest tests/unit/ -v
 Current local verification:
 
 ```text
-107 unit tests passed
+112 unit tests passed
 ```
 
 ## Database Path

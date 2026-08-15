@@ -49,3 +49,15 @@ def test_run_live_sql_benchmark_with_fake_llm_creates_artifacts(tmp_path):
     assert payload["summary"]["case_count"] == 16
     assert tmp_path.joinpath("predictions.json").exists()
     assert tmp_path.joinpath("live_sql_benchmark_report.md").exists()
+
+
+def test_run_live_sql_benchmark_can_enable_execution(tmp_path):
+    payload = run_live_sql_benchmark(
+        limit=1,
+        output_dir=str(tmp_path),
+        llm=FakeLLM(),
+        model="fake-model",
+        execution=True,
+    )
+    assert payload["execution_enabled"] is True
+    assert payload["summary"]["execution_accuracy"] is not None

@@ -117,9 +117,13 @@ def list_huggingface_eval_cases(
     ]
 
 
-def run_sql_eval(dataset: str = "sql_generation", format: str = "json") -> dict[str, Any] | str:
+def run_sql_eval(
+    dataset: str = "sql_generation",
+    format: str = "json",
+    execution: bool = False,
+) -> dict[str, Any] | str:
     """Run the bundled local SQL eval dataset."""
-    payload = run_local_eval(dataset_name=dataset)
+    payload = run_local_eval(dataset_name=dataset, execution=execution)
     if format == "markdown":
         return render_markdown_report(payload)
     if format != "json":
@@ -153,6 +157,7 @@ def evaluate_sql_predictions(
     predictions: list[dict[str, str]],
     dataset: str = "sql_generation",
     pass_threshold: float = 0.75,
+    execution: bool = False,
 ) -> dict[str, Any]:
     """Evaluate generated SQL predictions supplied by an MCP client.
 
@@ -168,12 +173,18 @@ def evaluate_sql_predictions(
         prediction_map[str(question)] = str(sql)
 
     cases = load_dataset(dataset)
-    results = evaluate_sql_dataset(cases, prediction_map, pass_threshold=pass_threshold)
+    results = evaluate_sql_dataset(
+        cases,
+        prediction_map,
+        pass_threshold=pass_threshold,
+        execution=execution,
+    )
     missing = [case.question for case in cases if case.question not in prediction_map]
     return {
         "dataset": dataset,
         "mode": "mcp_predictions",
         "pass_threshold": pass_threshold,
+        "execution_enabled": execution,
         "summary": summarize_results(results),
         "missing_predictions": missing,
         "results": [
@@ -187,6 +198,8 @@ def evaluate_sql_predictions(
                 "similarity_score": result.similarity_score,
                 "keyword_coverage_score": result.keyword_coverage_score,
                 "combined_score": result.combined_score,
+                "execution_score": result.execution_score,
+                "execution_passed": result.execution_passed,
                 "passed": result.passed,
                 "details": result.details,
             }
@@ -199,6 +212,7 @@ def evaluate_sql_predictions_report(
     predictions: list[dict[str, str]],
     dataset: str = "sql_generation",
     pass_threshold: float = 0.75,
+    execution: bool = False,
 ) -> str:
     """Evaluate predictions and render a markdown report."""
     return render_markdown_report(
@@ -206,6 +220,7 @@ def evaluate_sql_predictions_report(
             predictions=predictions,
             dataset=dataset,
             pass_threshold=pass_threshold,
+            execution=execution,
         )
     )
 

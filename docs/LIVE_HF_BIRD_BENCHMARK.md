@@ -1,5 +1,9 @@
 # Eval Report: birdsql/bird23-train-filtered
 
+This is a live model-generated SQL quality report on a streamed BIRD sample.
+It does not measure execution accuracy because the matching BIRD database files
+are not bundled with this project.
+
 - Mode: `predictions`
 - Cases: 10
 - Pass rate: 100.00%

@@ -55,6 +55,8 @@ class EvalResult:
     used_prediction: bool
     metadata: dict[str, Any]
     details: dict[str, Any]
+    execution_score: float | None = None
+    execution_passed: bool | None = None
 
 
 def normalize_sql(sql: str) -> str:
@@ -189,11 +191,17 @@ def evaluate_sql_dataset(
     cases: list[EvalCase],
     predictions: dict[str, str] | None = None,
     pass_threshold: float = 0.75,
+    execution: bool = False,
 ) -> list[EvalResult]:
     """Score SQL for each case using local validity and efficiency scorers."""
     validity = SQLValidity()
     efficiency = SQLEfficiency()
     predictions = predictions or {}
+    execution_scorer = None
+    if execution:
+        from evals.execution import score_sql_execution
+
+        execution_scorer = score_sql_execution
 
     results: list[EvalResult] = []
     for case in cases:
@@ -212,6 +220,10 @@ def evaluate_sql_dataset(
             ),
             4,
         )
+        execution_result = execution_scorer(sql, case.expected_sql) if execution_scorer else None
+        passed = validity_result.passed and combined >= pass_threshold
+        if execution_result is not None:
+            passed = passed and execution_result.passed
         results.append(
             EvalResult(
                 question=case.question,
@@ -224,13 +236,16 @@ def evaluate_sql_dataset(
                 similarity_score=similarity,
                 keyword_coverage_score=keyword_coverage,
                 combined_score=combined,
-                passed=validity_result.passed and combined >= pass_threshold,
+                passed=passed,
                 used_prediction=used_prediction,
                 metadata=case.metadata,
                 details={
                     "validity": validity_result.details,
                     "efficiency": efficiency_result.details,
+                    **({"execution": execution_result.details} if execution_result else {}),
                 },
+                execution_score=execution_result.score if execution_result else None,
+                execution_passed=execution_result.passed if execution_result else None,
             )
         )
     return results
@@ -248,6 +263,8 @@ def summarize_results(results: list[EvalResult]) -> dict[str, Any]:
             "avg_keyword_coverage": 0.0,
             "avg_combined": 0.0,
             "prediction_coverage": 0.0,
+            "execution_accuracy": None,
+            "avg_execution_score": None,
             "by_difficulty": {},
             "issue_counts": {},
             "weakest_cases": [],
@@ -261,6 +278,7 @@ def summarize_results(results: list[EvalResult]) -> dict[str, Any]:
             issue_counts[issue.get("name", "unknown")] += 1
 
     weakest_cases = sorted(results, key=lambda r: r.combined_score)[:5]
+    execution_results = [result for result in results if result.execution_score is not None]
 
     return {
         "case_count": len(results),
@@ -271,11 +289,30 @@ def summarize_results(results: list[EvalResult]) -> dict[str, Any]:
         "avg_keyword_coverage": round(mean(r.keyword_coverage_score for r in results), 4),
         "avg_combined": round(mean(r.combined_score for r in results), 4),
         "prediction_coverage": round(sum(r.used_prediction for r in results) / len(results), 4),
+        "execution_accuracy": (
+            round(sum(bool(r.execution_passed) for r in execution_results) / len(execution_results), 4)
+            if execution_results
+            else None
+        ),
+        "avg_execution_score": (
+            round(mean(float(r.execution_score) for r in execution_results), 4)
+            if execution_results
+            else None
+        ),
         "by_difficulty": {
             difficulty: {
                 "case_count": len(items),
                 "pass_rate": round(sum(r.passed for r in items) / len(items), 4),
                 "avg_combined": round(mean(r.combined_score for r in items), 4),
+                "execution_accuracy": (
+                    round(
+                        sum(bool(r.execution_passed) for r in items if r.execution_score is not None)
+                        / len([r for r in items if r.execution_score is not None]),
+                        4,
+                    )
+                    if any(r.execution_score is not None for r in items)
+                    else None
+                ),
             }
             for difficulty, items in sorted(by_difficulty.items())
         },
@@ -286,6 +323,7 @@ def summarize_results(results: list[EvalResult]) -> dict[str, Any]:
                 "difficulty": result.difficulty,
                 "combined_score": result.combined_score,
                 "passed": result.passed,
+                "execution_passed": result.execution_passed,
             }
             for result in weakest_cases
         ],
@@ -316,15 +354,18 @@ def render_markdown_report(payload: dict[str, Any]) -> str:
         f"- Average efficiency: {summary['avg_efficiency']:.4f}",
         f"- Average SQL similarity: {summary['avg_similarity']:.4f}",
         f"- Prediction coverage: {summary['prediction_coverage']:.2%}",
-        "",
-        "## By Difficulty",
-        "",
     ]
+    if summary.get("execution_accuracy") is not None:
+        lines.append(f"- Execution accuracy: {summary['execution_accuracy']:.2%}")
+    lines.extend(["", "## By Difficulty", ""])
     for difficulty, metrics in summary["by_difficulty"].items():
-        lines.append(
+        line = (
             f"- {difficulty}: {metrics['case_count']} cases, "
             f"{metrics['pass_rate']:.2%} pass, avg {metrics['avg_combined']:.4f}"
         )
+        if metrics.get("execution_accuracy") is not None:
+            line += f", execution {metrics['execution_accuracy']:.2%}"
+        lines.append(line)
 
     if summary["issue_counts"]:
         lines.extend(["", "## Issue Counts", ""])
@@ -357,6 +398,7 @@ def run_local_eval(
     hf_split: str = "train",
     hf_config: str | None = None,
     limit: int = 50,
+    execution: bool = False,
 ) -> dict[str, Any]:
     """Run SQL evals and return summary plus per-case results."""
     cases, dataset_info = load_eval_cases(
@@ -369,12 +411,20 @@ def run_local_eval(
         limit=limit,
     )
     predictions = load_predictions(predictions_path) if predictions_path else None
-    results = evaluate_sql_dataset(cases, predictions, pass_threshold=pass_threshold)
+    if execution and source != "local":
+        raise ValueError("Execution scoring is currently available only for bundled local evals.")
+    results = evaluate_sql_dataset(
+        cases,
+        predictions,
+        pass_threshold=pass_threshold,
+        execution=execution,
+    )
     return {
         "dataset": dataset_info["dataset"],
         "dataset_info": dataset_info,
         "mode": "predictions" if predictions_path else "expected_sql_baseline",
         "pass_threshold": pass_threshold,
+        "execution_enabled": execution,
         "summary": summarize_results(results),
         "missing_predictions": missing_prediction_questions(cases, predictions),
         "results": [asdict(result) for result in results],
@@ -409,6 +459,11 @@ def main() -> None:
         help="Combined score threshold for passing a case.",
     )
     parser.add_argument(
+        "--execution",
+        action="store_true",
+        help="For bundled local evals, compare generated and expected SQL outputs on a fixture database.",
+    )
+    parser.add_argument(
         "--format",
         choices=["json", "markdown"],
         default="json",
@@ -433,6 +488,7 @@ def main() -> None:
         hf_split=args.hf_split,
         hf_config=args.hf_config,
         limit=args.limit,
+        execution=args.execution,
     )
     if args.export_dataset:
         exported = [

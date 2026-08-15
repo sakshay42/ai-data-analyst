@@ -34,9 +34,9 @@ poetry run mcp dev src/mcp_server/server.py
 - `list_eval_cases`: lists dataset questions, difficulties, and required tables.
 - `list_huggingface_eval_presets`: lists supported external text-to-SQL benchmark presets.
 - `list_huggingface_eval_cases`: streams a small Hugging Face benchmark sample and normalizes it.
-- `run_sql_eval`: runs the bundled offline SQL eval dataset as JSON or markdown.
+- `run_sql_eval`: runs the bundled offline SQL eval dataset as JSON or markdown, with optional execution scoring.
 - `run_huggingface_sql_eval`: runs scorer baseline on a streamed Hugging Face text-to-SQL sample.
-- `evaluate_sql_predictions`: scores generated SQL predictions against a dataset.
+- `evaluate_sql_predictions`: scores generated SQL predictions against a dataset, with optional execution scoring for local bundled evals.
 - `evaluate_sql_predictions_report`: returns a markdown report for generated SQL predictions.
 - `compare_sql_prediction_runs`: compares two prediction runs and diagnoses fixed cases, regressions, and remaining issues.
 - `run_eval_progress_demo`: runs the deterministic before/after eval progress demo.

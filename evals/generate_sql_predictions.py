@@ -135,9 +135,12 @@ def run_live_sql_benchmark(
     model: str = "gpt-4o-mini",
     output_dir: str = "output/live_sql_benchmark",
     pass_threshold: float = 0.75,
+    execution: bool = False,
     llm: ChatModel | None = None,
 ) -> dict[str, Any]:
     """Generate live predictions, score them, and write artifacts."""
+    if execution and source != "local":
+        raise ValueError("Execution scoring is currently available only for bundled local evals.")
     output_path = Path(output_dir)
     output_path.mkdir(parents=True, exist_ok=True)
     cases, dataset_info = load_eval_cases(
@@ -164,6 +167,7 @@ def run_live_sql_benchmark(
         hf_split=hf_split,
         hf_config=hf_config,
         limit=limit,
+        execution=execution,
     )
     payload["model"] = model
     payload["predictions_path"] = str(predictions_path)
@@ -190,6 +194,11 @@ def main() -> None:
     parser.add_argument("--model", default=os.getenv("OPENAI_MODEL", "gpt-4o-mini"))
     parser.add_argument("--output-dir", default="output/live_sql_benchmark")
     parser.add_argument("--pass-threshold", type=float, default=0.75)
+    parser.add_argument(
+        "--execution",
+        action="store_true",
+        help="For bundled local evals, compare generated and expected SQL outputs on a fixture database.",
+    )
     args = parser.parse_args()
 
     try:
@@ -204,6 +213,7 @@ def main() -> None:
             model=args.model,
             output_dir=args.output_dir,
             pass_threshold=args.pass_threshold,
+            execution=args.execution,
         )
     except RuntimeError as exc:
         raise SystemExit(str(exc)) from exc
