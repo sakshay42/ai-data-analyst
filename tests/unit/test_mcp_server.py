@@ -21,6 +21,7 @@ def test_project_info_lists_entrypoints():
     assert info["name"] == "ai-data-analyst"
     assert info["entrypoints"]["mcp_server"] == "src/mcp_server/server.py"
     assert info["entrypoints"]["eval_progress"] == "evals/progress_tracker.py"
+    assert info["entrypoints"]["live_sql_benchmark"] == "evals/generate_sql_predictions.py"
     assert "sql_generation" in info["eval_datasets"]
 
 

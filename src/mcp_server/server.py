@@ -41,6 +41,7 @@ def project_info() -> dict[str, Any]:
             "streamlit": "src/streamlit_app/app.py",
             "local_evals": "evals/local_runner.py",
             "eval_progress": "evals/progress_tracker.py",
+            "live_sql_benchmark": "evals/generate_sql_predictions.py",
             "mcp_server": "src/mcp_server/server.py",
         },
         "source_packages": sorted(

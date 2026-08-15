@@ -144,7 +144,7 @@ Settings                              (src/config/settings.py:63-79)
 
 ```
 # ─── Required ────────────────────────────────────────────────────
-OPENAI_API_KEY=sk-proj-...             # LLMSettings.api_key
+OPENAI_API_KEY=<set-locally>           # LLMSettings.api_key
 
 # ─── Database (all have defaults) ────────────────────────────────
 DB_URL=postgresql://user:pass@host:5432/db
