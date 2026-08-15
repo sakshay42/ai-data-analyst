@@ -161,6 +161,11 @@ External benchmark smoke-test artifact:
 
 - [BIRD expected-SQL baseline](docs/HF_BIRD_EXPECTED_BASELINE.md)
 
+Live model benchmark artifacts:
+
+- [Live bundled SQL benchmark](docs/LIVE_SQL_BENCHMARK.md)
+- [Live BIRD benchmark sample](docs/LIVE_HF_BIRD_BENCHMARK.md)
+
 ## Statistical Experimentation
 
 The `src/stats/experimentation.py` module adds a statistics-heavy layer for controlled experiments:
