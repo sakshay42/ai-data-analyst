@@ -1,8 +1,8 @@
 # AI Data Analyst
 
-Private analytics project for turning plain-language business questions into SQL, statistical summaries, charts, and written reports.
+Private analytics project for turning plain-language business questions into SQL, statistical summaries, experiment analysis, charts, and written reports.
 
-The repository includes a database-backed analysis pipeline, an offline portfolio demo, local evals, Hugging Face text-to-SQL benchmark sampling, and an MCP server for exposing safe project tools.
+The repository includes a database-backed analysis pipeline, offline demos, statistical experiment analysis, local evals, Hugging Face text-to-SQL benchmark sampling, and an MCP server for exposing safe project tools.
 
 ## What It Does
 
@@ -10,12 +10,13 @@ The repository includes a database-backed analysis pipeline, an offline portfoli
 - Plans an analysis from a business question.
 - Generates and safely executes read-only SQL.
 - Computes descriptive statistics, correlations, trends, and group summaries.
+- Analyzes A/B tests with confidence intervals, bootstrap uncertainty, effect sizes, power, MDE, multiple-testing correction, and statistical audit warnings.
 - Produces chart artifacts and markdown reports.
 - Runs offline SQL evals for validity, efficiency, similarity, and keyword coverage.
 - Streams small Hugging Face text-to-SQL benchmark samples for external evals.
 - Exposes MCP tools for SQL scoring, evals, project metadata, and row analysis.
 
-## Demo
+## Demos
 
 The fastest way to review the project is the offline portfolio demo. It requires no API key and no database.
 
@@ -36,6 +37,20 @@ More demo artifacts:
 - [Monthly revenue trend](docs/assets/monthly_revenue_trend.png)
 - [Discount margin risk](docs/assets/discount_margin_risk.png)
 
+Run the statistics-focused experimentation demo:
+
+```bash
+uvx poetry run ai-data-analyst-experiment-demo
+```
+
+The experiment demo simulates a pricing/offer test and reports treatment effects with uncertainty, power, MDE, multiple-testing correction, and interpretation warnings.
+
+Experiment demo artifacts:
+
+- [Experimentation demo report](docs/EXPERIMENTATION_DEMO.md)
+- [Treatment effect chart](docs/assets/experiment_effects.png)
+- [Experimentation notebook](notebooks/experimentation_demo.ipynb)
+
 ## Architecture
 
 ```text
@@ -55,6 +70,7 @@ Core modules:
 src/agents/          planner, SQL, analyst, visualizer, reporter nodes
 src/graph/           LangGraph state and routing
 src/tools/           SQL, charting, stats, schema helper tools
+src/stats/           experiment analysis, uncertainty, power, audit checks
 src/db/              PostgreSQL connection and introspection
 src/demo/            offline portfolio demo
 src/mcp_server/      MCP tools and resources
@@ -99,6 +115,19 @@ Eval metrics include:
 - prediction coverage
 - weakest-case summary
 
+## Statistical Experimentation
+
+The `src/stats/experimentation.py` module adds a statistics-heavy layer for controlled experiments:
+
+- Welch mean-difference tests with analytic and bootstrap confidence intervals
+- Two-proportion z-tests for conversion-style metrics
+- Effect sizes: Cohen's d and Cohen's h
+- Power and minimum detectable effect diagnostics
+- Benjamini-Hochberg false-discovery-rate correction
+- Audit findings for low sample size, low power, uncertain intervals, and practical significance
+
+This is intentionally separate from the SQL/reporting pipeline so it can be tested and reused independently.
+
 ## MCP
 
 Start the MCP server:
@@ -132,7 +161,7 @@ uvx poetry run pytest tests/unit/ -v
 Current local verification:
 
 ```text
-90 unit tests passed
+98 unit tests passed
 ```
 
 ## Database Path

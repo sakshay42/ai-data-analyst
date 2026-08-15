@@ -1,8 +1,8 @@
 [tool.poetry]
 name = "ai-data-analyst"
 version = "0.1.0"
-description = "End-to-end AI Data Analyst: plain-language questions → SQL → statistical analysis → visual reports"
-authors = ["Zubair Ashfaque"]
+description = "Private analytics project: plain-language questions to SQL, statistical analysis, evals, and visual reports"
+authors = ["Akshay Sakanaveeti"]
 readme = "README.md"
 packages = [{include = "src"}]
 
@@ -47,6 +47,7 @@ datasets = ">=2.18,<5.0"
 ai-data-analyst-evals = "evals.local_runner:main"
 ai-data-analyst-mcp = "src.mcp_server.server:main"
 ai-data-analyst-demo = "src.demo.portfolio_demo:main"
+ai-data-analyst-experiment-demo = "src.demo.experimentation_demo:main"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0.0"
