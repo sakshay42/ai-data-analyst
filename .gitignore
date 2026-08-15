@@ -32,6 +32,7 @@ data/processed/
 output/
 *.png
 *.html
+!docs/assets/*.png
 !src/streamlit_app/*.html
 !blog/*.html
 
