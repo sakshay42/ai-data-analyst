@@ -1,0 +1,5 @@
+url: postgresql://postgres:postgres@localhost:5432/ecommerce
+pool_min: 2
+pool_max: 10
+statement_timeout: "30s"
+max_rows: 10000

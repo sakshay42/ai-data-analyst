@@ -1,0 +1,9 @@
+defaults:
+  - llm: openai
+  - database: dev
+
+app:
+  name: ai-data-analyst
+  version: 0.1.0
+  log_level: INFO
+  output_dir: output

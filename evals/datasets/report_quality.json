@@ -1,0 +1,52 @@
+[
+  {
+    "question": "What are the top 5 products by revenue?",
+    "expected_sections": ["Executive Summary", "Question", "Methodology", "Key Findings", "Recommendations"],
+    "expected_keywords": ["revenue", "product", "top"]
+  },
+  {
+    "question": "How has monthly revenue trended over the past year?",
+    "expected_sections": ["Executive Summary", "Methodology", "Key Findings", "Visualizations"],
+    "expected_keywords": ["monthly", "revenue", "trend", "growth"]
+  },
+  {
+    "question": "Which customer segments have the highest average order value?",
+    "expected_sections": ["Executive Summary", "Key Findings", "Recommendations"],
+    "expected_keywords": ["customer", "segment", "average", "order value"]
+  },
+  {
+    "question": "What is the distribution of product ratings across categories?",
+    "expected_sections": ["Executive Summary", "Key Findings", "Visualizations"],
+    "expected_keywords": ["rating", "distribution", "category"]
+  },
+  {
+    "question": "Are there seasonal patterns in order volume?",
+    "expected_sections": ["Executive Summary", "Methodology", "Key Findings"],
+    "expected_keywords": ["seasonal", "pattern", "order", "volume"]
+  },
+  {
+    "question": "What is the customer retention rate by cohort?",
+    "expected_sections": ["Executive Summary", "Methodology", "Key Findings", "Recommendations"],
+    "expected_keywords": ["retention", "cohort", "customer", "rate"]
+  },
+  {
+    "question": "Compare revenue performance between product categories this quarter vs last quarter.",
+    "expected_sections": ["Executive Summary", "Key Findings", "Visualizations", "Recommendations"],
+    "expected_keywords": ["compare", "quarter", "category", "revenue", "performance"]
+  },
+  {
+    "question": "Which products have declining sales and may need intervention?",
+    "expected_sections": ["Executive Summary", "Key Findings", "Recommendations"],
+    "expected_keywords": ["declining", "sales", "intervention", "product"]
+  },
+  {
+    "question": "What is the correlation between discount percentage and order quantity?",
+    "expected_sections": ["Executive Summary", "Methodology", "Key Findings"],
+    "expected_keywords": ["correlation", "discount", "quantity"]
+  },
+  {
+    "question": "Provide a full business health dashboard summary for last month.",
+    "expected_sections": ["Executive Summary", "Key Findings", "Visualizations", "Recommendations"],
+    "expected_keywords": ["revenue", "orders", "customers", "summary"]
+  }
+]

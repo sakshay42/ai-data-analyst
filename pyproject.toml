@@ -1,0 +1,83 @@
+[tool.poetry]
+name = "ai-data-analyst"
+version = "0.1.0"
+description = "End-to-end AI Data Analyst: plain-language questions → SQL → statistical analysis → visual reports"
+authors = ["Zubair Ashfaque"]
+readme = "README.md"
+packages = [{include = "src"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+# Core
+langgraph = "^0.4.0"
+langchain = "^0.3.0"
+langchain-openai = "^0.3.0"
+langchain-community = "^0.3.0"
+# Database
+psycopg = {version = "^3.2.0", extras = ["pool", "binary"]}
+# Data & Analysis
+pandas = "^2.2.0"
+numpy = "^1.26.0"
+scipy = "^1.12.0"
+# Visualization
+matplotlib = "^3.8.0"
+plotly = "^5.19.0"
+seaborn = "^0.13.0"
+# Config & Validation
+pydantic = "^2.6.0"
+pydantic-settings = "^2.2.0"
+python-dotenv = "^1.0.0"
+# UI
+streamlit = "^1.32.0"
+# Logging
+loguru = "^0.7.2"
+tabulate = "^0.9.0"
+# Observability
+langsmith = "^0.3.0"
+langfuse = "^2.0.0"
+braintrust = ">=0.0.100"
+autoevals = ">=0.0.60"
+# helicone integration uses proxy headers only (no SDK needed)
+# MCP server
+mcp = {version = ">=2.0,<3.0", extras = ["cli"]}
+# External benchmark loading
+datasets = ">=2.18,<5.0"
+
+[tool.poetry.scripts]
+ai-data-analyst-evals = "evals.local_runner:main"
+ai-data-analyst-mcp = "src.mcp_server.server:main"
+ai-data-analyst-demo = "src.demo.portfolio_demo:main"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.0.0"
+pytest-cov = "^4.1.0"
+pytest-mock = "^3.12.0"
+pytest-asyncio = "^0.23.0"
+black = "^24.1.0"
+isort = "^5.13.0"
+mypy = "^1.8.0"
+ruff = "^0.1.14"
+sqlparse = "^0.5.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 100
+target-version = ["py310"]
+
+[tool.isort]
+profile = "black"
+line_length = 100
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"

@@ -1,0 +1,176 @@
+[
+  {
+    "name": "basic_mean_std",
+    "data": [
+      {"value": 10},
+      {"value": 20},
+      {"value": 30},
+      {"value": 40},
+      {"value": 50}
+    ],
+    "columns": ["value"],
+    "expected": {
+      "mean": 30.0,
+      "std": 15.811,
+      "min": 10,
+      "max": 50,
+      "count": 5
+    }
+  },
+  {
+    "name": "revenue_trend_increasing",
+    "data": [
+      {"month": 1, "revenue": 1000},
+      {"month": 2, "revenue": 1200},
+      {"month": 3, "revenue": 1500},
+      {"month": 4, "revenue": 1800},
+      {"month": 5, "revenue": 2200},
+      {"month": 6, "revenue": 2800}
+    ],
+    "columns": ["month", "revenue"],
+    "expected": {
+      "mean": 1750.0,
+      "trend": "increasing",
+      "min": 1000,
+      "max": 2800
+    }
+  },
+  {
+    "name": "revenue_trend_decreasing",
+    "data": [
+      {"month": 1, "revenue": 5000},
+      {"month": 2, "revenue": 4500},
+      {"month": 3, "revenue": 3800},
+      {"month": 4, "revenue": 3200},
+      {"month": 5, "revenue": 2500}
+    ],
+    "columns": ["month", "revenue"],
+    "expected": {
+      "mean": 3800.0,
+      "trend": "decreasing",
+      "min": 2500,
+      "max": 5000
+    }
+  },
+  {
+    "name": "stable_metric",
+    "data": [
+      {"day": 1, "users": 100},
+      {"day": 2, "users": 102},
+      {"day": 3, "users": 99},
+      {"day": 4, "users": 101},
+      {"day": 5, "users": 100},
+      {"day": 6, "users": 98}
+    ],
+    "columns": ["day", "users"],
+    "expected": {
+      "mean": 100.0,
+      "trend": "stable",
+      "std": 1.414
+    }
+  },
+  {
+    "name": "positive_correlation",
+    "data": [
+      {"ad_spend": 100, "sales": 500},
+      {"ad_spend": 200, "sales": 1100},
+      {"ad_spend": 300, "sales": 1500},
+      {"ad_spend": 400, "sales": 2000},
+      {"ad_spend": 500, "sales": 2600}
+    ],
+    "columns": ["ad_spend", "sales"],
+    "expected": {
+      "correlation_ad_spend_sales": 0.999,
+      "correlation_direction": "positive"
+    }
+  },
+  {
+    "name": "negative_correlation",
+    "data": [
+      {"price": 10, "demand": 500},
+      {"price": 20, "demand": 400},
+      {"price": 30, "demand": 300},
+      {"price": 40, "demand": 200},
+      {"price": 50, "demand": 100}
+    ],
+    "columns": ["price", "demand"],
+    "expected": {
+      "correlation_price_demand": -1.0,
+      "correlation_direction": "negative"
+    }
+  },
+  {
+    "name": "single_column_all_same",
+    "data": [
+      {"score": 42},
+      {"score": 42},
+      {"score": 42},
+      {"score": 42}
+    ],
+    "columns": ["score"],
+    "expected": {
+      "mean": 42.0,
+      "std": 0.0,
+      "min": 42,
+      "max": 42
+    }
+  },
+  {
+    "name": "large_spread_outliers",
+    "data": [
+      {"value": 1},
+      {"value": 2},
+      {"value": 3},
+      {"value": 4},
+      {"value": 100}
+    ],
+    "columns": ["value"],
+    "expected": {
+      "mean": 22.0,
+      "median": 3.0,
+      "min": 1,
+      "max": 100
+    }
+  },
+  {
+    "name": "multi_column_summary",
+    "data": [
+      {"quantity": 5, "unit_price": 10.0, "discount": 0.1},
+      {"quantity": 3, "unit_price": 25.0, "discount": 0.05},
+      {"quantity": 8, "unit_price": 15.0, "discount": 0.0},
+      {"quantity": 2, "unit_price": 50.0, "discount": 0.2},
+      {"quantity": 10, "unit_price": 8.0, "discount": 0.0}
+    ],
+    "columns": ["quantity", "unit_price", "discount"],
+    "expected": {
+      "mean_quantity": 5.6,
+      "mean_unit_price": 21.6,
+      "mean_discount": 0.07
+    }
+  },
+  {
+    "name": "percentage_distribution",
+    "data": [
+      {"category": "A", "count": 50},
+      {"category": "B", "count": 30},
+      {"category": "C", "count": 20}
+    ],
+    "columns": ["category", "count"],
+    "expected": {
+      "total": 100,
+      "pct_A": 50.0,
+      "pct_B": 30.0,
+      "pct_C": 20.0
+    }
+  },
+  {
+    "name": "empty_result_handling",
+    "data": [],
+    "columns": ["value"],
+    "expected": {
+      "count": 0,
+      "mean": null,
+      "insights": "no_data"
+    }
+  }
+]

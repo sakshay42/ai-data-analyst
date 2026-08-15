@@ -1,0 +1,8 @@
+provider: azure_openai
+model: gpt-4o
+deployment_name: gpt-4o
+azure_endpoint: https://your-resource.openai.azure.com/
+api_version: "2024-02-01"
+temperature: 0.0
+max_tokens: 4096
+request_timeout: 60

@@ -1,0 +1,5 @@
+url: ${DATABASE_URL}
+pool_min: 5
+pool_max: 20
+statement_timeout: "60s"
+max_rows: 50000
